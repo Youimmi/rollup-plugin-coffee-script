@@ -1,13 +1,12 @@
 var coffeescript = require('coffeescript');
-var createFilter = require('rollup-pluginutils').createFilter;
-var objectAssign = require('object-assign');
+var createFilter = require('@rollup/pluginutils').createFilter;
 var extname = require('path').extname;
 
 function compileOptions(id, options, literateExtensions) {
   if (literateExtensions.indexOf(extname(id) === -1)) {
     return options;
   } else {
-    return objectAssign({}, options, { literate: true });
+    return Object.assign({}, options, { literate: true });
   }
 }
 
@@ -18,7 +17,7 @@ function sourceMap(output) {
 }
 
 module.exports = function coffee(options) {
-  options = objectAssign({
+  options = Object.assign({
     sourceMap: true,
     bare: true,
     extensions: ['.coffee', '.litcoffee'],

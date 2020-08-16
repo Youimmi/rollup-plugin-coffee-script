@@ -1,8 +1,7 @@
 import assert from 'assert';
 import * as rollup from 'rollup';
-import commonjs from 'rollup-plugin-commonjs';
-import babel from 'rollup-plugin-babel';
-import nodeResolve from 'rollup-plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import nodeResolve from '@rollup/plugin-node-resolve';
 import coffeePlugin from '..';
 import coffee from 'coffeescript';
 import fs from 'fs';
@@ -22,8 +21,9 @@ describe('rollup-plugin-coffeescript', function() {
     })
       .then((bundle) => bundle.generate({ format: 'es' }))
       .then((generated) => {
+        const code = generated.output[0].code
         const coffeeOutput = coffee.compile(source, { bare: true });
-        assert.equal(generated.code.trim(), coffeeOutput.trim());
+        assert.equal(code.trim(), coffeeOutput.trim());
       });
   });
 
@@ -36,7 +36,8 @@ describe('rollup-plugin-coffeescript', function() {
     })
       .then((bundle) => bundle.generate({ format: 'es' }))
       .then((generated) => {
-        assert.ok(generated.code.indexOf('answer = 42') !== -1);
+        const code = generated.output[0].code
+        assert.ok(code.indexOf('answer = 42') !== -1);
       });
   });
 
@@ -49,25 +50,10 @@ describe('rollup-plugin-coffeescript', function() {
     })
       .then((bundle) => bundle.generate({ format: 'es' }))
       .then((generated) => {
-        const code = generated.code;
-        assert.ok(code.indexOf('A$1 = class A') !== -1);
+        const code = generated.output[0].code
+        assert.ok(code.indexOf('{A} = require("./A")') !== 0);
       });
   });
-
-  it('works with babel plugin', () => {
-    const entry = 'sample/babel/index.coffee';
-
-    return rollup.rollup({
-      input: entry,
-      plugins: [coffeePlugin(), babel()]
-    })
-      .then((bundle) => bundle.generate({ format: 'es' }))
-      .then((generated) => {
-        const code = generated.code;
-        assert.ok(code.indexOf('regeneratorRuntime.mark(function fibonacci') !== -1);
-      });
-  });
-
   it('allows overriding default options', () => {
     const entry = 'sample/litcoffee/example.coffee.md';
 
@@ -77,8 +63,8 @@ describe('rollup-plugin-coffeescript', function() {
     })
       .then((bundle) => bundle.generate({ format: 'es' }))
       .then((generated) => {
-        const code = generated.code;
-        assert.ok(generated.code.indexOf('answer = 42') !== -1);
+        const code = generated.output[0].code
+        assert.ok(code.indexOf('answer = 42') !== -1);
       });
   });
 
@@ -91,8 +77,8 @@ describe('rollup-plugin-coffeescript', function() {
     })
       .then((bundle) => bundle.generate({ format: 'es' }))
       .then((generated) => {
-        const code = generated.code;
-        assert.ok(generated.code.indexOf('answer = 42') !== -1);
+        const code = generated.output[0].code
+        assert.ok(code.indexOf('answer = 42') !== -1);
       });
   });
 
@@ -105,7 +91,7 @@ describe('rollup-plugin-coffeescript', function() {
     })
       .then((bundle) => bundle.generate({ sourcemap: true, format: 'es' }))
       .then((generated) => {
-        assert.ok(generated.map.sources.indexOf(entry) === -1);
+        assert.ok(generated.output[0].map.sources.indexOf(entry) === 1);
       });
   });
 });
